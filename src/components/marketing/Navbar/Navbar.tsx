@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { navigation } from "@/src/constants/navigation";
+import { navigation } from "@/constants/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function Navbar() {

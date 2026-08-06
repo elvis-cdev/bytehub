@@ -1,7 +1,7 @@
 export const heroStats = [
   {
     value: "8,400+",
-    label: "Student Developers",
+    label: "Developers",
   },
   {
     value: "3,200+",
