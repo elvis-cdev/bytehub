@@ -1,7 +1,9 @@
 import Announcement from "@/components/marketing/Announcement";
-import Navbar from "@/components/marketing/Navbar/Navbar";
-import Hero from "@/components/marketing/Hero/Hero";
+import Navbar from "@/components/marketing/Navbar";
+
+import Hero from "@/components/marketing/Hero";
 import WhoItsFor from "@/components/marketing/WhoItsFor";
+import HowItWorks from "@/components/marketing/HowItWorks";
 
 export default function HomePage() {
   return (
@@ -12,6 +14,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <WhoItsFor />
+        <HowItWorks />
       </main>
     </>
   );
