@@ -24,6 +24,8 @@ model User {
   sessions         Session[]
   posts            Post[]
   postLikes        PostLike[]
+  projectUpdates   ProjectUpdate[]
+  sentMessages     Message[]
 }
 
 model Session {
@@ -69,6 +71,8 @@ model Project {
   applications Application[]
 
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  updates  ProjectUpdate[]
+  messages Message[]
 }
 
 model Application {
@@ -153,6 +157,27 @@ model PostLike {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+}
+
+model ProjectUpdate {
+  id        String   @id @default(cuid())
+  projectId String
+  authorId  String
+  content   String
+  progress  Int?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

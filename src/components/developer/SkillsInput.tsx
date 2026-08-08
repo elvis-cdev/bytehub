@@ -3,66 +3,71 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { addSkill, removeSkill } from "@/actions/profile";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
-export default function SkillsInput() {
-  const [skill, setSkill] = useState("");
-  const [skills, setSkills] = useState<string[]>([
-    "React",
-    "Next.js",
-    "TypeScript",
-  ]);
+interface Skill {
+  id: string;
+  name: string;
+}
 
-  function addSkill() {
-    const value = skill.trim();
+export default function SkillsInput({ skills }: { skills: Skill[] }) {
+  const [value, setValue] = useState("");
+  const [pending, setPending] = useState(false);
 
-    if (!value) return;
-
-    if (skills.includes(value)) {
-      setSkill("");
-      return;
+  async function handleAdd() {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    setPending(true);
+    try {
+      await addSkill(trimmed);
+      setValue("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to add skill");
+    } finally {
+      setPending(false);
     }
-
-    setSkills((prev) => [...prev, value]);
-    setSkill("");
   }
 
-  function removeSkill(name: string) {
-    setSkills((prev) => prev.filter((s) => s !== name));
+  async function handleRemove(id: string) {
+    try {
+      await removeSkill(id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to remove skill");
+    }
   }
 
   return (
     <div className="rounded-xl border bg-background p-6 space-y-5">
-      <h2 className="text-xl font-semibold">
-        Skills
-      </h2>
+      <h2 className="text-xl font-semibold">Skills</h2>
 
       <div className="flex gap-3">
         <Input
           placeholder="React, Python, Docker..."
-          value={skill}
-          onChange={(e) => setSkill(e.target.value)}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addSkill();
+              handleAdd();
             }
           }}
         />
-
-        <Button onClick={addSkill}>
-          Add
+        <Button onClick={handleAdd} disabled={pending}>
+          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {skills.map((item) => (
           <button
-            key={item}
+            key={item.id}
             type="button"
-            onClick={() => removeSkill(item)}
+            onClick={() => handleRemove(item.id)}
             className="rounded-full border px-4 py-2 text-sm transition hover:bg-red-500 hover:text-white"
           >
-            {item} ✕
+            {item.name} ✕
           </button>
         ))}
       </div>
