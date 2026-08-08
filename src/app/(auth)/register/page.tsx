@@ -1,12 +1,11 @@
+import { Suspense } from "react";
 import RegisterForm from "@/components/auth/RegisterForm";
 import Logo from "@/components/Logo";
-
 export default function RegisterPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted/40 px-4">
       <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-
       <div className="relative w-full max-w-md space-y-8">
         <div className="text-center">
           <Logo />
@@ -15,9 +14,10 @@ export default function RegisterPage() {
             Create your account and start collaborating.
           </p>
         </div>
-
         <div className="rounded-2xl border bg-background/80 p-8 shadow-xl backdrop-blur">
-          <RegisterForm />
+          <Suspense fallback={null}>
+            <RegisterForm />
+          </Suspense>
         </div>
       </div>
     </main>
