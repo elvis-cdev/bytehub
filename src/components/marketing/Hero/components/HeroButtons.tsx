@@ -5,7 +5,7 @@ export default function HeroButtons() {
   return (
     <div className="flex flex-wrap gap-4">
       <Link
-        href="/contact"
+        href="/register"
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
       >
         Get Started

@@ -1,131 +1,77 @@
 import {
-  ActivityItem,
-  NotificationCard,
   PageHeader,
-  ProfileCompletion,
-  QuickActionCard,
   SectionCard,
   StatCard,
 } from "@/components/dashboard";
-
+import QuickActionCard from "@/components/dashboard/components/QuickActionCard";
+import { getMyApplications } from "@/actions/application";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import {
   BriefcaseBusiness,
   FileText,
-  MessageSquare,
   UserCheck,
 } from "lucide-react";
+import { applicationStatusConfig } from "@/lib/status";
+import { Badge } from "@/components/ui/badge";
 
-export default function DeveloperDashboardPage() {
+export default async function DeveloperDashboardPage() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const applications = await getMyApplications();
+
+  const accepted = applications.filter((a) => a.status === "ACCEPTED").length;
+  const pending = applications.filter((a) => a.status === "PENDING").length;
+
   return (
     <div className="space-y-8">
-
       <PageHeader
-        title="Welcome back 👋"
+        title={`Welcome back${session?.user.name ? `, ${session.user.name.split(" ")[0]}` : ""} 👋`}
         description="Manage your developer journey from one place."
       />
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-        <StatCard
-          title="Projects Applied"
-          value={12}
-          icon={BriefcaseBusiness}
-        />
-
-        <StatCard
-          title="Accepted"
-          value={4}
-          icon={UserCheck}
-        />
-
-        <StatCard
-          title="Messages"
-          value={9}
-          icon={MessageSquare}
-        />
-
-        <StatCard
-          title="Portfolio Views"
-          value={341}
-          icon={FileText}
-        />
-
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <StatCard title="Projects Applied" value={applications.length} icon={BriefcaseBusiness} />
+        <StatCard title="Accepted" value={accepted} icon={UserCheck} />
+        <StatCard title="Pending" value={pending} icon={FileText} />
       </div>
 
-      <ProfileCompletion value={72} />
-
       <div className="grid gap-6 lg:grid-cols-3">
-
         <QuickActionCard
           title="Complete Profile"
           description="Increase your chances of getting hired."
           href="/developer/profile"
         />
-
         <QuickActionCard
           title="Browse Projects"
           description="Find exciting opportunities."
-          href="/projects"
+          href="/developer/projects"
         />
-
         <QuickActionCard
           title="Applications"
           description="Track all submitted applications."
           href="/developer/applications"
         />
-
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-
-        <SectionCard title="Recent Activity">
-
+      <SectionCard title="Recent Applications">
+        {applications.length === 0 ? (
+          <p className="py-8 text-center text-muted-foreground">
+            No applications yet — head to Browse Projects to get started.
+          </p>
+        ) : (
           <div className="space-y-3">
-
-            <ActivityItem
-              text="Applied to ByteHub Landing Page redesign"
-              time="5 minutes ago"
-            />
-
-            <ActivityItem
-              text="Profile updated"
-              time="Yesterday"
-            />
-
-            <ActivityItem
-              text="New portfolio uploaded"
-              time="2 days ago"
-            />
-
+            {applications.slice(0, 5).map((app) => {
+              const config = applicationStatusConfig[app.status];
+              return (
+                <div key={app.id} className="flex items-center justify-between rounded-lg border p-4">
+                  <p className="font-medium">{app.project.title}</p>
+                  <Badge className={config.className}>{config.label}</Badge>
+                </div>
+              );
+            })}
           </div>
-
-        </SectionCard>
-
-        <SectionCard title="Notifications">
-
-          <div className="space-y-3">
-
-            <NotificationCard
-              title="New project matches your skills."
-              time="2 mins ago"
-            />
-
-            <NotificationCard
-              title="Company viewed your profile."
-              time="Today"
-            />
-
-            <NotificationCard
-              title="Application accepted."
-              time="Yesterday"
-            />
-
-          </div>
-
-        </SectionCard>
-
-      </div>
-
+        )}
+      </SectionCard>
     </div>
   );
 }
