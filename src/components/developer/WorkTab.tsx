@@ -193,7 +193,7 @@ export default function WorkTab({
                   </div>
                 )}
                 {project.link && (
-                  
+                  <a
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.bytehub.co.ke"\;
+  const baseUrl = "https://www.bytehub.co.ke";
 
   return [
     {
