@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getOpenProjects, getMyApplications } from "@/actions/application";
-import { PageHeader } from "@/components/dashboard/components/PageHeader";
+import PageHeader from "@/components/dashboard/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ApplyButton } from "@/components/application/apply-button";
