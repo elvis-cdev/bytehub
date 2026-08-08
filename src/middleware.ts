@@ -7,6 +7,9 @@ const publicRoutes = [
   "/login",
   "/register",
   "/forgot-password",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/og-image.png",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -35,5 +38,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   runtime: "nodejs",
-  matcher: ["/((?!_next|favicon.ico).*)"],
+  matcher: ["/((?!_next|favicon.ico|sitemap.xml|robots.txt).*)"],
 };
