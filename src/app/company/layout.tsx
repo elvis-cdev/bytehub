@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
-export default function DeveloperLayout({ children }: { children: ReactNode }) {
+export default function CompanyLayout({ children }: { children: ReactNode }) {
   return (
-    <DashboardLayout role="developer" portalLabel="Developer Portal">
+    <DashboardLayout role="company" portalLabel="Company Portal">
       {children}
     </DashboardLayout>
   );

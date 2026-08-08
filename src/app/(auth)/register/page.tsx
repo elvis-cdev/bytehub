@@ -1,72 +1,25 @@
-"use client";
-
-import { useState } from "react";
-import { signUp } from "@/lib/auth-client";
+import RegisterForm from "@/components/auth/RegisterForm";
+import Logo from "@/components/Logo";
 
 export default function RegisterPage() {
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    setLoading(true);
-
-    const form = new FormData(e.currentTarget);
-
-    const name = form.get("name") as string;
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-
-    const result = await signUp.email({
-      name,
-      email,
-      password,
-    });
-
-    console.log(result);
-
-    setLoading(false);
-  }
-
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-4 rounded-lg border p-8"
-      >
-        <h1 className="text-3xl font-bold">Create Account</h1>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted/40 px-4">
+      <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+      <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
 
-        <input
-          name="name"
-          placeholder="Full name"
-          className="rounded border p-2"
-          required
-        />
+      <div className="relative w-full max-w-md space-y-8">
+        <div className="text-center">
+          <Logo />
+          <h1 className="mt-6 text-3xl font-bold tracking-tight">Join ByteHub</h1>
+          <p className="mt-2 text-muted-foreground">
+            Create your account and start collaborating.
+          </p>
+        </div>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          className="rounded border p-2"
-          required
-        />
-
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          className="rounded border p-2"
-          required
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-black p-2 text-white"
-        >
-          {loading ? "Creating account..." : "Register"}
-        </button>
-      </form>
+        <div className="rounded-2xl border bg-background/80 p-8 shadow-xl backdrop-blur">
+          <RegisterForm />
+        </div>
+      </div>
     </main>
   );
 }

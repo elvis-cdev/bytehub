@@ -1,171 +1,83 @@
 "use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-
-import { signUp } from "@/lib/auth-client";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
+import { Loader2 } from "lucide-react";
 export default function RegisterForm() {
   const router = useRouter();
-
-  const [role, setRole] = useState<"DEVELOPER" | "CLIENT">("DEVELOPER");
-
+  const searchParams = useSearchParams();
+  const initialRole = searchParams.get("role") === "client" ? "CLIENT" : "DEVELOPER";
+  const [role, setRole] = useState<"DEVELOPER" | "CLIENT">(initialRole);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
+    setError("");
     setLoading(true);
-
     try {
-      const result = await signUp.email({
+      const result = await authClient.signUp.email({
         name,
         email,
         password,
-      });
-
-      console.log(result);
-
+        role,
+      } as never);
       if (result.error) {
-        alert(result.error.message);
+        setError(result.error.message ?? "Something went wrong");
+        setLoading(false);
         return;
       }
-
-      if (role === "DEVELOPER") {
-        router.push("/developer/dashboard");
-      } else {
-        router.push("/company/dashboard");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong.");
-    } finally {
+      router.push(role === "DEVELOPER" ? "/developer/dashboard" : "/company/dashboard");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
       setLoading(false);
     }
   }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4 text-center">
-          <Image
-            src="/logo.png"
-            alt="ByteHub"
-            width={80}
-            height={80}
-            className="mx-auto"
-          />
-
-          <CardTitle className="text-3xl font-bold">
-            Join ByteHub
-          </CardTitle>
-
-          <p className="text-sm text-muted-foreground">
-            Create your account and start collaborating.
-          </p>
-        </CardHeader>
-
-        <CardContent>
-          <form
-            onSubmit={handleRegister}
-            className="space-y-5"
-          >
-            <div className="space-y-2">
-              <Label>Name</Label>
-
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="John Doe"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Email</Label>
-
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="john@example.com"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Password</Label>
-
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label>I am a</Label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="button"
-                  variant={
-                    role === "DEVELOPER"
-                      ? "default"
-                      : "outline"
-                  }
-                  onClick={() =>
-                    setRole("DEVELOPER")
-                  }
-                >
-                  Developer
-                </Button>
-
-                <Button
-                  type="button"
-                  variant={
-                    role === "CLIENT"
-                      ? "default"
-                      : "outline"
-                  }
-                  onClick={() =>
-                    setRole("CLIENT")
-                  }
-                >
-                  Client
-                </Button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              {loading
-                ? "Creating Account..."
-                : "Create Account"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <form onSubmit={handleRegister} className="space-y-5">
+      <div className="space-y-2">
+        <Label>Name</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Email</Label>
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" required />
+      </div>
+      <div className="space-y-2">
+        <Label>Password</Label>
+        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={8} />
+      </div>
+      <div className="space-y-3">
+        <Label>I am a</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <Button type="button" variant={role === "DEVELOPER" ? "default" : "outline"} onClick={() => setRole("DEVELOPER")}>
+            Developer
+          </Button>
+          <Button type="button" variant={role === "CLIENT" ? "default" : "outline"} onClick={() => setRole("CLIENT")}>
+            Client
+          </Button>
+        </div>
+      </div>
+      {error && (
+        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
+      )}
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        {loading ? "Creating Account..." : "Create Account"}
+      </Button>
+      <p className="text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <a href="/login" className="underline underline-offset-4">
+          Log in
+        </a>
+      </p>
+    </form>
   );
 }

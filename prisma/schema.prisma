@@ -24,6 +24,7 @@ model User {
   sessions         Session[]
   posts            Post[]
   postLikes        PostLike[]
+  comments         Comment[]
   projectUpdates   ProjectUpdate[]
   sentMessages     Message[]
 }
@@ -146,6 +147,7 @@ model Post {
   createdAt DateTime   @default(now())
   author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     PostLike[]
+  comments  Comment[]
 }
 
 model PostLike {
@@ -178,6 +180,16 @@ model Message {
   createdAt DateTime @default(now())
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

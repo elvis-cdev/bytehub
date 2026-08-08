@@ -11,7 +11,7 @@ async function requireSession() {
   return session;
 }
 
-export async function createPost(content: string) {
+export async function createPost(content: string, imageUrl?: string) {
   const session = await requireSession();
 
   if (!content.trim()) throw new Error("Post can't be empty");
@@ -20,6 +20,7 @@ export async function createPost(content: string) {
     data: {
       authorId: session.user.id,
       content: content.trim(),
+      imageUrl: imageUrl?.trim() || null,
     },
   });
 
@@ -36,7 +37,7 @@ export async function getFeed() {
     include: {
       author: { select: { id: true, name: true, image: true, role: true } },
       likes: { select: { userId: true } },
-      _count: { select: { likes: true } },
+      _count: { select: { likes: true, comments: true } },
     },
   });
 

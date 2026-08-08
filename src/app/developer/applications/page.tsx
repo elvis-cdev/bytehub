@@ -18,7 +18,7 @@ export default async function DeveloperApplicationsPage() {
         {applications.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             <FileText className="mx-auto h-8 w-8 mb-3 opacity-50" />
-            You haven't applied to any projects yet.
+            You haven&apos;t applied to any projects yet.
           </div>
         ) : (
           <div className="space-y-3">

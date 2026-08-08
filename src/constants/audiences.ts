@@ -16,7 +16,7 @@ export const audiences = [
 
     button: "Start Building",
 
-    href: "/register/developer",
+    href: "/register?role=developer",
 
     icon: Code2,
 
@@ -46,7 +46,7 @@ export const audiences = [
 
     button: "Find Talent",
 
-    href: "/register/client",
+    href: "/register?role=client",
 
     icon: BriefcaseBusiness,
 

@@ -1,4 +1,5 @@
 import {
+  Rss,
   LayoutDashboard,
   UserRound,
   FolderKanban,
@@ -45,6 +46,11 @@ export const developerNavigation = [
     icon: LayoutDashboard,
   },
   {
+    label: "Feed",
+    href: "/feed",
+    icon: Rss,
+  },
+  {
     label: "Profile",
     href: "/developer/profile",
     icon: UserRound,
@@ -80,6 +86,11 @@ export const companyNavigation = [
     label: "Dashboard",
     href: "/company/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Feed",
+    href: "/feed",
+    icon: Rss,
   },
   {
     label: "Company Profile",

@@ -14,4 +14,14 @@ export const auth = betterAuth({
   advanced: {
     skipTrailingSlashes: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "DEVELOPER",
+        input: true,
+      },
+    },
+  },
 });

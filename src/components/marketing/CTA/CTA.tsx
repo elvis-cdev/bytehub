@@ -8,7 +8,7 @@ export default function CTA() {
         Ready to get started?
       </h2>
       <p className="mt-4 text-lg text-muted-foreground">
-        Join ByteHub today — whether you're building your portfolio or hiring your next developer.
+        Join ByteHub today — whether you&apos;re building your portfolio or hiring your next developer.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
         <Link
