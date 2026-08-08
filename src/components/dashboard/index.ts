@@ -11,3 +11,7 @@ export { default as StatCard } from "./components/StatCard";
 export { default as SectionCard } from "./components/SectionCard";
 export { default as EmptyState } from "./components/EmptyState";
 export { default as ActivityItem } from "./components/ActivityItem";
+
+export { default as QuickActionCard } from "./components/QuickActionCard";
+export { default as ProfileCompletion } from "./components/ProfileCompletion";
+export { default as NotificationCard } from "./components/NotificationCard";

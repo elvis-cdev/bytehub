@@ -1,39 +1,60 @@
 "use client";
 
 import Link from "next/link";
+
 import { navigation } from "@/constants/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <nav className="w-full border-b bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold tracking-tight text-slate-900">
-          ByteHub
-          <span className="text-blue-600"> Kenya</span>
+        <Link href="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="ByteHub Logo"
+            className="h-11 w-11 rounded-lg object-contain"
+            loading="eager"
+          />
+
+          <span className="text-xl font-bold tracking-tight">
+            ByteHub
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
+
+        {/* Navigation Links */}
+        <div className="hidden items-center gap-8 md:flex">
           {navigation.map((item) => (
             <Link
-              key={item.label}
+              key={item.name}
               href={item.href}
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-900"
+              className="text-sm font-medium text-gray-600 transition hover:text-black"
             >
-              {item.label}
+              {item.name}
             </Link>
           ))}
-        </nav>
+        </div>
+
 
         {/* Actions */}
-        <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost">Log in</Button>
+        <div className="flex items-center gap-3">
+          <Link href="/login">
+            <Button variant="ghost">
+              Login
+            </Button>
+          </Link>
 
-          <Button>Join Free</Button>
+          <Link href="/register">
+            <Button>
+              Get Started
+            </Button>
+          </Link>
         </div>
+
       </div>
-    </header>
+    </nav>
   );
 }

@@ -1,12 +1,158 @@
-// prisma/schema.prisma
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  role             Role              @default(DEVELOPER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  bio              String?
+  image            String?
+  name             String
+  emailVerified    Boolean           @default(false)
+  accounts         Account[]
+  applications     Application[]
+  ClientProfile    ClientProfile?
+  DeveloperProfile DeveloperProfile?
+  Project          Project[]
+  sessions         Session[]
+  posts            Post[]
+  postLikes        PostLike[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  budget      Float?
+  deadline    DateTime?
+  ownerId     String
+  status      ProjectStatus @default(OPEN)
+
+  applications Application[]
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  developerId String
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  projectId   String
+  developer   User              @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([developerId, projectId])
+}
+
+model Skill {
+  id               String           @id @default(cuid())
+  name             String
+  developerId      String
+  DeveloperProfile DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+}
+
+model ClientProfile {
+  id      String  @id
+  userId  String  @unique
+  website String?
+  company String?
+  User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DeveloperProfile {
+  id         String             @id
+  userId     String             @unique
+  university String?
+  course     String?
+  github     String?
+  portfolio  String?
+  linkedin   String?
+  graduation Int?
+  hourlyRate Float?
+  User       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Skill      Skill[]
+  showcases  PortfolioProject[]
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
+
+model PortfolioProject {
+  id          String           @id @default(cuid())
+  developerId String
+  title       String
+  description String
+  link        String?
+  imageUrl    String?
+  techStack   String[]
+  createdAt   DateTime         @default(now())
+  developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id        String     @id @default(cuid())
+  authorId  String
+  content   String
+  imageUrl  String?
+  createdAt DateTime   @default(now())
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes     PostLike[]
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
 }
 
 enum Role {
@@ -26,99 +172,4 @@ enum ApplicationStatus {
   PENDING
   ACCEPTED
   REJECTED
-}
-
-model User {
-  id String @id @default(cuid())
-
-  name     String
-  email    String @unique
-  password String
-
-  role Role @default(DEVELOPER)
-
-  image String?
-  bio   String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  developer DeveloperProfile?
-  client    ClientProfile?
-
-  projects     Project[]
-  applications Application[]
-}
-
-model DeveloperProfile {
-  id String @id @default(cuid())
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  university String?
-  course     String?
-  graduation Int?
-
-  github    String?
-  linkedin  String?
-  portfolio String?
-
-  hourlyRate Float?
-
-  skills Skill[]
-}
-
-model ClientProfile {
-  id String @id @default(cuid())
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  company String?
-  website String?
-}
-
-model Skill {
-  id String @id @default(cuid())
-
-  name String
-
-  developerId String
-  developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
-}
-
-model Project {
-  id String @id @default(cuid())
-
-  title       String
-  description String
-
-  budget Float?
-
-  status ProjectStatus @default(OPEN)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  ownerId String
-  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  applications Application[]
-}
-
-model Application {
-  id String @id @default(cuid())
-
-  developerId String
-  projectId   String
-
-  status ApplicationStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-
-  developer User    @relation(fields: [developerId], references: [id], onDelete: Cascade)
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@unique([developerId, projectId])
 }
