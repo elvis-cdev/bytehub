@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedGrid, AnimatedItem } from "@/components/motion/animated-grid";
-import { GraduationCap, Github, Users } from "lucide-react";
+import { GraduationCap, Link2, Users } from "lucide-react";
 import Link from "next/link";
 
 export default async function DiscoverDevelopersPage() {
@@ -65,7 +65,7 @@ export default async function DiscoverDevelopersPage() {
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                       <span>{dev._count.applications} applications</span>
                       {dev.DeveloperProfile?.github && (
-                        <Github className="h-3.5 w-3.5" />
+                        <Link2 className="h-3.5 w-3.5" />
                       )}
                     </div>
                   </CardContent>

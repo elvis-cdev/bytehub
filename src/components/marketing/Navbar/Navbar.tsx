@@ -29,11 +29,11 @@ export default function Navbar() {
         <div className="hidden items-center gap-8 md:flex">
           {navigation.map((item) => (
             <Link
-              key={item.name}
+              key={item.label}
               href={item.href}
               className="text-sm font-medium text-gray-600 transition hover:text-black"
             >
-              {item.name}
+              {item.label}
             </Link>
           ))}
         </div>

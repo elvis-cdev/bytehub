@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { applicationStatusConfig } from "@/lib/status";
-import { Github, Globe, Linkedin, GraduationCap, ExternalLink } from "lucide-react";
+import { Link2, Globe, Contact, GraduationCap, ExternalLink } from "lucide-react";
 
 export default async function DeveloperPublicProfilePage({
   params,
@@ -41,14 +41,14 @@ export default async function DeveloperPublicProfilePage({
         {profile?.github && (
           <a href={profile.github} target="_blank" rel="noopener noreferrer">
             <Badge variant="secondary" className="gap-1.5">
-              <Github className="h-3.5 w-3.5" /> GitHub
+              <Link2 className="h-3.5 w-3.5" /> GitHub
             </Badge>
           </a>
         )}
         {profile?.linkedin && (
           <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
             <Badge variant="secondary" className="gap-1.5">
-              <Linkedin className="h-3.5 w-3.5" /> LinkedIn
+              <Contact className="h-3.5 w-3.5" /> LinkedIn
             </Badge>
           </a>
         )}
