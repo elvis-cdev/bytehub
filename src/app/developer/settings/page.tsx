@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/dashboard/components/PageHeader";
+import PageHeader from "@/components/dashboard/components/PageHeader";
 import { SettingsForm } from "@/components/dashboard/SettingsForm";
 
 export default function DeveloperSettingsPage() {

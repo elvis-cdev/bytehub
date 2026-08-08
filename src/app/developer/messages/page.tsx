@@ -1,7 +1,7 @@
 import { getMyConversations } from "@/actions/collaboration";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { PageHeader } from "@/components/dashboard/components/PageHeader";
+import PageHeader from "@/components/dashboard/components/PageHeader";
 import { MessagesInbox } from "@/components/collaboration/messages-inbox";
 
 export default async function DeveloperMessagesPage() {
