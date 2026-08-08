@@ -101,3 +101,44 @@ export async function removeSkill(id: string) {
   await prisma.skill.delete({ where: { id } });
   revalidatePath("/developer/profile");
 }
+
+export async function getMyCompanyProfile() {
+  const session = await requireSession();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: {
+      ClientProfile: true,
+    },
+  });
+  return user;
+}
+
+export async function updateCompanyProfile(data: {
+  bio?: string;
+  image?: string;
+  company?: string;
+  website?: string;
+}) {
+  const session = await requireSession();
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      bio: data.bio,
+      image: data.image,
+    },
+  });
+  await prisma.clientProfile.upsert({
+    where: { userId: session.user.id },
+    create: {
+      id: session.user.id,
+      userId: session.user.id,
+      company: data.company,
+      website: data.website,
+    },
+    update: {
+      company: data.company,
+      website: data.website,
+    },
+  });
+  revalidatePath("/company/profile");
+}

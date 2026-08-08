@@ -116,3 +116,51 @@ export async function getMyActiveProject(projectId: string) {
 
   return project;
 }
+
+export async function getMyConversations() {
+  const session = await requireSession();
+
+  const ownedProjects = await prisma.project.findMany({
+    where: {
+      ownerId: session.user.id,
+      applications: { some: { status: "ACCEPTED" } },
+    },
+    include: {
+      applications: {
+        where: { status: "ACCEPTED" },
+        include: { developer: { select: { id: true, name: true, image: true } } },
+      },
+      messages: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+  });
+
+  const developerProjects = await prisma.project.findMany({
+    where: {
+      applications: { some: { developerId: session.user.id, status: "ACCEPTED" } },
+    },
+    include: {
+      owner: { select: { id: true, name: true, image: true } },
+      messages: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+  });
+
+  const owned = ownedProjects.map((p) => ({
+    projectId: p.id,
+    projectTitle: p.title,
+    otherParty: p.applications[0]?.developer ?? { id: "", name: "Unknown", image: null },
+    lastMessage: p.messages[0]?.content ?? null,
+    lastMessageAt: p.messages[0]?.createdAt ?? p.createdAt,
+  }));
+
+  const asDeveloper = developerProjects.map((p) => ({
+    projectId: p.id,
+    projectTitle: p.title,
+    otherParty: p.owner,
+    lastMessage: p.messages[0]?.content ?? null,
+    lastMessageAt: p.messages[0]?.createdAt ?? p.createdAt,
+  }));
+
+  return [...owned, ...asDeveloper].sort(
+    (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  );
+}
