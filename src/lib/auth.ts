@@ -39,7 +39,7 @@ export const auth = betterAuth({
             ? "Your ByteHub sign-in code"
             : "Verify your ByteHub email";
         await resend.emails.send({
-          from: "ByteHub <onboarding@resend.dev>",
+          from: "ByteHub <noreply@bytehub.co.ke>",
           to: email,
           subject,
           html: `
