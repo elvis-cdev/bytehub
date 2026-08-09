@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarNav from "./SidebarNav";
 
 interface TopbarProps {
-  role: "developer" | "company";
+  role: "developer" | "company" | "admin";
   portalLabel: string;
   user: { name: string; email: string; image?: string };
 }

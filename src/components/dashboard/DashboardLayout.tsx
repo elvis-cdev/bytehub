@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: "developer" | "company";
+  role: "developer" | "company" | "admin";
   portalLabel: string;
 }
 export default async function DashboardLayout({

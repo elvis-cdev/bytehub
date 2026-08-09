@@ -1,7 +1,7 @@
 import SidebarNav from "./SidebarNav";
 
 interface SidebarProps {
-  role: "developer" | "company";
+  role: "developer" | "company" | "admin";
   portalLabel: string;
   user: { name: string; email: string; image?: string };
 }
