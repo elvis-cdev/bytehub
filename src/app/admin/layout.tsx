@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect("/");
   }
   if (access.reason === "needs-verification") {
-    redirect("/admin/verify");
+    redirect("/admin-verify");
   }
 
   return (
