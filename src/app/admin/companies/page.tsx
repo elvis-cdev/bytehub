@@ -22,7 +22,7 @@ export default async function AdminCompaniesPage() {
               </p>
               <p className="text-sm text-muted-foreground truncate">{c.email}</p>
               {c.ClientProfile?.website && (
-                
+                <a
                   href={c.ClientProfile.website}
                   target="_blank"
                   rel="noopener noreferrer"
