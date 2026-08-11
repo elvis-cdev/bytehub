@@ -94,7 +94,7 @@ export default function ProfileForm({ initial, slug }: ProfileFormProps) {
           <div>
             <Label>Available for projects</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Show companies whether you're open to new work.
+              Show companies whether you&apos;re open to new work.
             </p>
           </div>
           <div className="flex gap-2">

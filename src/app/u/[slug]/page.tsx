@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { getPublicDeveloperProfile } from "@/actions/profile";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Github, Linkedin, Globe, Calendar, CircleDot } from "lucide-react";
+import { ExternalLink, Globe, Calendar, CircleDot } from "lucide-react";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export default async function PublicDeveloperProfilePage({
   params,
@@ -41,8 +42,8 @@ export default async function PublicDeveloperProfilePage({
                 <p className="mt-4 text-sm whitespace-pre-wrap">{profile.User.bio}</p>
               )}
               <div className="flex items-center gap-3 mt-4">
-                {profile.github && <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Github className="h-4 w-4" /></a>}
-                {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Linkedin className="h-4 w-4" /></a>}
+                {profile.github && <a href={profile.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><FaGithub className="h-4 w-4" /></a>}
+                {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><FaLinkedin className="h-4 w-4" /></a>}
                 {profile.portfolio && <a href={profile.portfolio} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Globe className="h-4 w-4" /></a>}
               </div>
             </div>
