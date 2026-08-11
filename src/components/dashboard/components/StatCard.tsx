@@ -12,14 +12,22 @@ export default function StatCard({
   icon: Icon,
 }: StatCardProps) {
   return (
-    <div className="rounded-xl border p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{title}</p>
+    <div className="group rounded-2xl border bg-background p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">
+            {title}
+          </p>
 
-        <Icon className="h-5 w-5" />
+          <p className="mt-3 text-3xl font-bold tracking-tight">
+            {value}
+          </p>
+        </div>
+
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+          <Icon className="h-5 w-5" />
+        </div>
       </div>
-
-      <h2 className="text-3xl font-bold">{value}</h2>
     </div>
   );
 }

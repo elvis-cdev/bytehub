@@ -10,14 +10,16 @@ export default function PageHeader({
   description,
 }: PageHeaderProps) {
   return (
-    <div className="space-y-2">
-      <h1 className="text-3xl font-bold tracking-tight">
-        {title}
-      </h1>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="space-y-1.5">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          {title}
+        </h1>
 
-      <p className="text-muted-foreground">
-        {description}
-      </p>
+        <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }
