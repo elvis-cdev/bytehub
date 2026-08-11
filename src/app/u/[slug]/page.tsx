@@ -63,7 +63,6 @@ export default async function PublicDeveloperProfilePage({
             </div>
           </div>
         </div>
-
         {profile.videoIntroUrl && (
           <div className="rounded-2xl border bg-background p-6">
             <h2 className="font-medium mb-3">Introduction</h2>
@@ -76,6 +75,7 @@ export default async function PublicDeveloperProfilePage({
               Watch intro video <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
+        )}
         )}
 
         {profile.Skill.length > 0 && (
