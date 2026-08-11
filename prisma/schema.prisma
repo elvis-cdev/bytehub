@@ -98,6 +98,8 @@ model Skill {
   id               String           @id @default(cuid())
   name             String
   developerId      String
+  proficiency      String?
+  category         String?
   DeveloperProfile DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
 }
 
@@ -110,8 +112,8 @@ model ClientProfile {
 }
 
 model DeveloperProfile {
-  id            String              @id
-  userId        String              @unique
+  id            String                @id
+  userId        String                @unique
   university    String?
   course        String?
   github        String?
@@ -119,14 +121,17 @@ model DeveloperProfile {
   linkedin      String?
   graduation    Int?
   hourlyRate    Float?
-  slug          String?             @unique
-  available     Boolean             @default(true)
+  slug          String?               @unique
+  available     Boolean               @default(true)
   videoIntroUrl String?
   languages     String[]
-  User          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   Skill         Skill[]
   showcases     PortfolioProject[]
   events        EventParticipation[]
+  certifications Certification[]
+  testimonials  Testimonial[]
+  views         ProfileView[]
 }
 
 model EventParticipation {
@@ -135,6 +140,35 @@ model EventParticipation {
   title       String
   role        String?
   eventDate   DateTime?
+  createdAt   DateTime         @default(now())
+  developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+}
+
+model Certification {
+  id          String           @id @default(cuid())
+  developerId String
+  title       String
+  issuer      String?
+  url         String?
+  createdAt   DateTime         @default(now())
+  developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+}
+
+model Testimonial {
+  id            String           @id @default(cuid())
+  developerId   String
+  authorName    String
+  authorRole    String?
+  content       String
+  approved      Boolean          @default(false)
+  requestToken  String           @unique
+  createdAt     DateTime         @default(now())
+  developer     DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+}
+
+model ProfileView {
+  id          String           @id @default(cuid())
+  developerId String
   createdAt   DateTime         @default(now())
   developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
 }
@@ -156,6 +190,9 @@ model PortfolioProject {
   link        String?
   imageUrl    String?
   techStack   String[]
+  problem     String?
+  approach    String?
+  result      String?
   createdAt   DateTime         @default(now())
   developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
 }

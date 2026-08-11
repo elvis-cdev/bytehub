@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { getPublicDeveloperProfile } from "@/actions/profile";
+import { getPublicDeveloperProfile, recordProfileView, calculateByteScore } from "@/actions/profile";
 import { Badge } from "@/components/ui/badge";
 import { HireMeSheet } from "@/components/developer/HireMeSheet";
-import { ExternalLink, Globe, Calendar, CircleDot, QrCode } from "lucide-react";
+import { ExternalLink, Globe, Calendar, CircleDot, QrCode, Award, Zap } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -14,11 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      images: profile.User.image ? [profile.User.image] : [],
-    },
+    openGraph: { title, description, images: profile.User.image ? [profile.User.image] : [] },
   };
 }
 
@@ -38,9 +34,13 @@ export default async function PublicDeveloperProfilePage({
 
   if (!profile) notFound();
 
+  recordProfileView(slug).catch(() => {});
+
   const ghUsername = githubUsername(profile.github);
   const profileUrl = `https://www.bytehub.co.ke/u/${slug}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(profileUrl)}`;
+  const byteScore = calculateByteScore(profile);
+  const approvedTestimonials = profile.testimonials.filter((t) => t.approved);
 
   return (
     <main className="min-h-screen bg-muted/20">
@@ -58,6 +58,9 @@ export default async function PublicDeveloperProfilePage({
                 <Badge variant="secondary" className={profile.available ? "bg-green-100 text-green-700 border-green-200" : ""}>
                   <CircleDot className="h-3 w-3 mr-1" />
                   {profile.available ? "Available for projects" : "Currently busy"}
+                </Badge>
+                <Badge variant="secondary" className="gap-1">
+                  <Zap className="h-3 w-3" /> ByteScore {byteScore}
                 </Badge>
               </div>
               {profile.university && (
@@ -123,6 +126,27 @@ export default async function PublicDeveloperProfilePage({
           </div>
         )}
 
+        {profile.certifications.length > 0 && (
+          <div className="rounded-2xl border bg-background p-6">
+            <h2 className="font-medium mb-3">Certifications</h2>
+            <div className="space-y-2.5">
+              {profile.certifications.map((cert) => (
+                <div key={cert.id} className="flex items-start gap-2.5">
+                  <Award className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {cert.url ? (
+                        <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{cert.title}</a>
+                      ) : cert.title}
+                    </p>
+                    {cert.issuer && <p className="text-xs text-muted-foreground">{cert.issuer}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {profile.showcases.length > 0 && (
           <div className="rounded-2xl border bg-background p-6">
             <h2 className="font-medium mb-4">Work</h2>
@@ -154,6 +178,22 @@ export default async function PublicDeveloperProfilePage({
           </div>
         )}
 
+        {approvedTestimonials.length > 0 && (
+          <div className="rounded-2xl border bg-background p-6">
+            <h2 className="font-medium mb-4">Testimonials</h2>
+            <div className="space-y-4">
+              {approvedTestimonials.map((t) => (
+                <div key={t.id} className="rounded-xl border p-4">
+                  <p className="text-sm italic">"{t.content}"</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {t.authorName}{t.authorRole ? `, ${t.authorRole}` : ""}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {profile.events.length > 0 && (
           <div className="rounded-2xl border bg-background p-6">
             <h2 className="font-medium mb-3">Events & Hackathons</h2>
@@ -177,9 +217,7 @@ export default async function PublicDeveloperProfilePage({
             <p className="text-sm font-medium flex items-center gap-1.5">
               <QrCode className="h-4 w-4" /> Scan to share
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Print this on a business card or share at events.
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Print this on a business card or share at events.</p>
           </div>
         </div>
 

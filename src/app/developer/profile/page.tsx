@@ -5,10 +5,13 @@ import WorkTab from "@/components/developer/WorkTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getMyDeveloperProfile } from "@/actions/profile";
 import { getMyPortfolioProjects } from "@/actions/developer";
+import { getMyTestimonials } from "@/actions/profile";
+import { TestimonialsPanel } from "@/components/developer/TestimonialsPanel";
 export default async function DeveloperProfilePage() {
   const user = await getMyDeveloperProfile();
   const profile = user?.DeveloperProfile;
   const workSamples = await getMyPortfolioProjects();
+  const testimonials = await getMyTestimonials();
   return (
     <div className="space-y-8">
       <ProfileHeader
@@ -40,6 +43,7 @@ export default async function DeveloperProfilePage() {
             }}
           />
           <SkillsInput skills={profile?.Skill ?? []} />
+          <TestimonialsPanel initialTestimonials={testimonials} />
         </TabsContent>
         <TabsContent value="work" className="mt-6">
           <WorkTab initialProjects={workSamples} />

@@ -35,7 +35,7 @@ export async function getMyDeveloperProfile() {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      DeveloperProfile: { include: { Skill: true, showcases: true, events: true } },
+      DeveloperProfile: { include: { Skill: true, showcases: true, events: true, certifications: true, testimonials: true } },
     },
   });
   return user;
@@ -110,6 +110,8 @@ export async function getPublicDeveloperProfile(slug: string) {
       Skill: true,
       showcases: { orderBy: { createdAt: "desc" } },
       events: { orderBy: { eventDate: "desc" } },
+      certifications: { orderBy: { createdAt: "desc" } },
+      testimonials: { where: { approved: true }, orderBy: { createdAt: "desc" } },
       User: {
         select: { name: true, image: true, bio: true, createdAt: true },
       },
@@ -246,4 +248,116 @@ export async function sendPortfolioInquiry(data: {
       </div>
     `,
   });
+}
+
+function randomToken() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+export async function recordProfileView(slug: string) {
+  const profile = await prisma.developerProfile.findUnique({ where: { slug } });
+  if (!profile) return;
+  await prisma.profileView.create({ data: { developerId: profile.id } });
+}
+
+export async function getMyProfileViewStats() {
+  const session = await requireSession();
+  const profile = await prisma.developerProfile.findUnique({ where: { userId: session.user.id } });
+  if (!profile) return { total: 0, last7Days: 0 };
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [total, last7Days] = await Promise.all([
+    prisma.profileView.count({ where: { developerId: profile.id } }),
+    prisma.profileView.count({ where: { developerId: profile.id, createdAt: { gte: sevenDaysAgo } } }),
+  ]);
+  return { total, last7Days };
+}
+
+export async function addCertification(data: { title: string; issuer?: string; url?: string }) {
+  const session = await requireSession();
+  const profile = await prisma.developerProfile.findUnique({ where: { userId: session.user.id } });
+  if (!profile) throw new Error("Save your profile details first");
+  await prisma.certification.create({
+    data: { developerId: profile.id, title: data.title.trim(), issuer: data.issuer?.trim(), url: data.url?.trim() },
+  });
+  revalidatePath("/developer/profile");
+}
+
+export async function removeCertification(id: string) {
+  const session = await requireSession();
+  const cert = await prisma.certification.findUnique({ where: { id }, include: { developer: true } });
+  if (!cert || cert.developer.userId !== session.user.id) throw new Error("Unauthorized");
+  await prisma.certification.delete({ where: { id } });
+  revalidatePath("/developer/profile");
+}
+
+export async function createTestimonialRequestLink() {
+  const session = await requireSession();
+  const profile = await prisma.developerProfile.findUnique({ where: { userId: session.user.id } });
+  if (!profile) throw new Error("Save your profile details first");
+  const requestToken = randomToken();
+  const testimonial = await prisma.testimonial.create({
+    data: { developerId: profile.id, authorName: "", content: "", requestToken, approved: false },
+  });
+  return testimonial.requestToken;
+}
+
+export async function submitTestimonial(token: string, data: { authorName: string; authorRole?: string; content: string }) {
+  const testimonial = await prisma.testimonial.findUnique({ where: { requestToken: token } });
+  if (!testimonial) throw new Error("Invalid or expired link");
+  await prisma.testimonial.update({
+    where: { requestToken: token },
+    data: { authorName: data.authorName.trim(), authorRole: data.authorRole?.trim(), content: data.content.trim() },
+  });
+}
+
+export async function approveTestimonial(id: string) {
+  const session = await requireSession();
+  const testimonial = await prisma.testimonial.findUnique({ where: { id }, include: { developer: true } });
+  if (!testimonial || testimonial.developer.userId !== session.user.id) throw new Error("Unauthorized");
+  await prisma.testimonial.update({ where: { id }, data: { approved: true } });
+  revalidatePath("/developer/profile");
+}
+
+export async function getMyTestimonials() {
+  const session = await requireSession();
+  const profile = await prisma.developerProfile.findUnique({
+    where: { userId: session.user.id },
+    include: { testimonials: { orderBy: { createdAt: "desc" } } },
+  });
+  return profile?.testimonials ?? [];
+}
+
+export function calculateByteScore(profile: {
+  showcases: unknown[];
+  Skill: unknown[];
+  certifications: unknown[];
+  testimonials: { approved: boolean }[];
+  events: unknown[];
+}) {
+  let score = 0;
+  score += Math.min(profile.showcases.length * 15, 60);
+  score += Math.min(profile.Skill.length * 5, 40);
+  score += Math.min(profile.certifications.length * 10, 30);
+  score += profile.testimonials.filter((t) => t.approved).length * 20;
+  score += Math.min(profile.events.length * 8, 24);
+  return Math.min(score, 999);
+}
+
+export function calculateProfileCompleteness(user: { bio: string | null }, profile: {
+  university: string | null;
+  Skill: unknown[];
+  showcases: unknown[];
+  github: string | null;
+  linkedin: string | null;
+} | null) {
+  const checks = [
+    !!user.bio,
+    !!profile?.university,
+    (profile?.Skill.length ?? 0) > 0,
+    (profile?.showcases.length ?? 0) > 0,
+    !!profile?.github,
+    !!profile?.linkedin,
+  ];
+  const complete = checks.filter(Boolean).length;
+  return Math.round((complete / checks.length) * 100);
 }
