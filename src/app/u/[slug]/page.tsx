@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getPublicDeveloperProfile, recordProfileView, calculateByteScore } from "@/actions/profile";
+import { getPublicDeveloperProfile, recordProfileView } from "@/actions/profile";
+import { calculateByteScore } from "@/lib/scoring";
 import { Badge } from "@/components/ui/badge";
 import { HireMeSheet } from "@/components/developer/HireMeSheet";
 import { ExternalLink, Globe, Calendar, CircleDot, QrCode, Award, Zap } from "lucide-react";
