@@ -23,6 +23,7 @@ export default async function DeveloperProfilePage() {
         </TabsList>
         <TabsContent value="profile" className="space-y-8 mt-6">
           <ProfileForm
+            slug={profile?.slug}
             initial={{
               bio: user?.bio ?? "",
               image: user?.image ?? "",
@@ -33,6 +34,9 @@ export default async function DeveloperProfilePage() {
               github: profile?.github ?? "",
               linkedin: profile?.linkedin ?? "",
               portfolio: profile?.portfolio ?? "",
+              available: profile?.available ?? true,
+              videoIntroUrl: profile?.videoIntroUrl ?? "",
+              languages: profile?.languages?.join(", ") ?? "",
             }}
           />
           <SkillsInput skills={profile?.Skill ?? []} />
