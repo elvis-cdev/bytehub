@@ -185,7 +185,7 @@ export default async function PublicDeveloperProfilePage({
             <div className="space-y-4">
               {approvedTestimonials.map((t) => (
                 <div key={t.id} className="rounded-xl border p-4">
-                  <p className="text-sm italic">"{t.content}"</p>
+                  <p className="text-sm italic">&ldquo;{t.content}&rdquo;</p>
                   <p className="text-xs text-muted-foreground mt-2">
                     {t.authorName}{t.authorRole ? `, ${t.authorRole}` : ""}
                   </p>
