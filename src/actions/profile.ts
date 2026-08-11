@@ -213,3 +213,37 @@ export async function updateCompanyProfile(data: {
   });
   revalidatePath("/company/profile");
 }
+
+export async function sendPortfolioInquiry(data: {
+  slug: string;
+  senderName: string;
+  senderEmail: string;
+  message: string;
+}) {
+  const profile = await prisma.developerProfile.findUnique({
+    where: { slug: data.slug },
+    include: { User: { select: { name: true, email: true } } },
+  });
+  if (!profile) throw new Error("Profile not found");
+  if (!data.senderName.trim() || !data.senderEmail.trim() || !data.message.trim()) {
+    throw new Error("All fields are required");
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  await resend.emails.send({
+    from: "ByteHub <noreply@bytehub.co.ke>",
+    to: profile.User.email,
+    replyTo: data.senderEmail,
+    subject: `New inquiry from ${data.senderName} via ByteHub`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #b8842e;">New portfolio inquiry</h2>
+        <p><strong>${data.senderName}</strong> (${data.senderEmail}) sent you a message via your ByteHub profile:</p>
+        <p style="background: #f5f5f5; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${data.message}</p>
+        <p style="color: #888; font-size: 13px;">Reply directly to this email to respond.</p>
+      </div>
+    `,
+  });
+}

@@ -1,8 +1,32 @@
 import { notFound } from "next/navigation";
 import { getPublicDeveloperProfile } from "@/actions/profile";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Globe, Calendar, CircleDot } from "lucide-react";
+import { HireMeSheet } from "@/components/developer/HireMeSheet";
+import { ExternalLink, Globe, Calendar, CircleDot, QrCode } from "lucide-react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const profile = await getPublicDeveloperProfile(slug);
+  if (!profile) return { title: "Profile not found | ByteHub" };
+  const title = `${profile.User.name} | ByteHub Developer`;
+  const description = profile.User.bio || `${profile.User.name}'s developer profile on ByteHub.`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: profile.User.image ? [profile.User.image] : [],
+    },
+  };
+}
+
+function githubUsername(url: string | null) {
+  if (!url) return null;
+  const match = url.match(/github\.com\/([^/?#]+)/i);
+  return match ? match[1] : null;
+}
 
 export default async function PublicDeveloperProfilePage({
   params,
@@ -13,6 +37,10 @@ export default async function PublicDeveloperProfilePage({
   const profile = await getPublicDeveloperProfile(slug);
 
   if (!profile) notFound();
+
+  const ghUsername = githubUsername(profile.github);
+  const profileUrl = `https://www.bytehub.co.ke/u/${slug}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(profileUrl)}`;
 
   return (
     <main className="min-h-screen bg-muted/20">
@@ -46,6 +74,9 @@ export default async function PublicDeveloperProfilePage({
                 {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><FaLinkedin className="h-4 w-4" /></a>}
                 {profile.portfolio && <a href={profile.portfolio} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground"><Globe className="h-4 w-4" /></a>}
               </div>
+              <div className="mt-5">
+                <HireMeSheet slug={slug} developerName={profile.User.name} />
+              </div>
             </div>
           </div>
         </div>
@@ -56,6 +87,17 @@ export default async function PublicDeveloperProfilePage({
             <a href={profile.videoIntroUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
               Watch intro video <ExternalLink className="h-3.5 w-3.5" />
             </a>
+          </div>
+        )}
+
+        {ghUsername && (
+          <div className="rounded-2xl border bg-background p-6">
+            <h2 className="font-medium mb-3">GitHub Activity</h2>
+            <img
+              src={`https://github-readme-stats.vercel.app/api?username=${ghUsername}&show_icons=true&theme=default&hide_border=true`}
+              alt="GitHub stats"
+              className="w-full max-w-md"
+            />
           </div>
         )}
 
@@ -128,6 +170,18 @@ export default async function PublicDeveloperProfilePage({
             </div>
           </div>
         )}
+
+        <div className="rounded-2xl border bg-background p-6 flex items-center gap-4">
+          <img src={qrUrl} alt="QR code to this profile" className="h-24 w-24 rounded-lg border" />
+          <div>
+            <p className="text-sm font-medium flex items-center gap-1.5">
+              <QrCode className="h-4 w-4" /> Scan to share
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Print this on a business card or share at events.
+            </p>
+          </div>
+        </div>
 
         <p className="text-center text-xs text-muted-foreground pt-4">Powered by ByteHub</p>
       </div>
