@@ -1,5 +1,4 @@
 "use server";
-
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -11,16 +10,34 @@ async function requireSession() {
   return session;
 }
 
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+async function generateUniqueSlug(name: string) {
+  const base = slugify(name) || "developer";
+  let candidate = base;
+  let counter = 1;
+  while (await prisma.developerProfile.findUnique({ where: { slug: candidate } })) {
+    counter += 1;
+    candidate = `${base}-${counter}`;
+  }
+  return candidate;
+}
+
 export async function getMyDeveloperProfile() {
   const session = await requireSession();
-
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      DeveloperProfile: { include: { Skill: true, showcases: true } },
+      DeveloperProfile: { include: { Skill: true, showcases: true, events: true } },
     },
   });
-
   return user;
 }
 
@@ -34,9 +51,11 @@ export async function updateDeveloperProfile(data: {
   github?: string;
   linkedin?: string;
   portfolio?: string;
+  available?: boolean;
+  videoIntroUrl?: string;
+  languages?: string[];
 }) {
   const session = await requireSession();
-
   await prisma.user.update({
     where: { id: session.user.id },
     data: {
@@ -44,6 +63,12 @@ export async function updateDeveloperProfile(data: {
       image: data.image,
     },
   });
+
+  const existing = await prisma.developerProfile.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  const slug = existing?.slug ?? (await generateUniqueSlug(session.user.name));
 
   await prisma.developerProfile.upsert({
     where: { userId: session.user.id },
@@ -57,6 +82,10 @@ export async function updateDeveloperProfile(data: {
       github: data.github,
       linkedin: data.linkedin,
       portfolio: data.portfolio,
+      slug,
+      available: data.available ?? true,
+      videoIntroUrl: data.videoIntroUrl,
+      languages: data.languages ?? [],
     },
     update: {
       university: data.university,
@@ -66,30 +95,43 @@ export async function updateDeveloperProfile(data: {
       github: data.github,
       linkedin: data.linkedin,
       portfolio: data.portfolio,
+      available: data.available,
+      videoIntroUrl: data.videoIntroUrl,
+      languages: data.languages,
     },
   });
-
   revalidatePath("/developer/profile");
+}
+
+export async function getPublicDeveloperProfile(slug: string) {
+  const profile = await prisma.developerProfile.findUnique({
+    where: { slug },
+    include: {
+      Skill: true,
+      showcases: { orderBy: { createdAt: "desc" } },
+      events: { orderBy: { eventDate: "desc" } },
+      User: {
+        select: { name: true, image: true, bio: true, createdAt: true },
+      },
+    },
+  });
+  return profile;
 }
 
 export async function addSkill(name: string) {
   const session = await requireSession();
-
   const profile = await prisma.developerProfile.findUnique({
     where: { userId: session.user.id },
   });
   if (!profile) throw new Error("Save your profile details first");
-
   await prisma.skill.create({
     data: { name: name.trim(), developerId: profile.id },
   });
-
   revalidatePath("/developer/profile");
 }
 
 export async function removeSkill(id: string) {
   const session = await requireSession();
-
   const skill = await prisma.skill.findUnique({
     where: { id },
     include: { DeveloperProfile: true },
@@ -97,8 +139,37 @@ export async function removeSkill(id: string) {
   if (!skill || skill.DeveloperProfile.userId !== session.user.id) {
     throw new Error("Unauthorized");
   }
-
   await prisma.skill.delete({ where: { id } });
+  revalidatePath("/developer/profile");
+}
+
+export async function addEventParticipation(data: { title: string; role?: string; eventDate?: string }) {
+  const session = await requireSession();
+  const profile = await prisma.developerProfile.findUnique({
+    where: { userId: session.user.id },
+  });
+  if (!profile) throw new Error("Save your profile details first");
+  await prisma.eventParticipation.create({
+    data: {
+      developerId: profile.id,
+      title: data.title.trim(),
+      role: data.role?.trim() || undefined,
+      eventDate: data.eventDate ? new Date(data.eventDate) : undefined,
+    },
+  });
+  revalidatePath("/developer/profile");
+}
+
+export async function removeEventParticipation(id: string) {
+  const session = await requireSession();
+  const event = await prisma.eventParticipation.findUnique({
+    where: { id },
+    include: { developer: true },
+  });
+  if (!event || event.developer.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+  await prisma.eventParticipation.delete({ where: { id } });
   revalidatePath("/developer/profile");
 }
 

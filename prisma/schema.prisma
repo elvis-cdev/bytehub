@@ -110,18 +110,33 @@ model ClientProfile {
 }
 
 model DeveloperProfile {
-  id         String             @id
-  userId     String             @unique
-  university String?
-  course     String?
-  github     String?
-  portfolio  String?
-  linkedin   String?
-  graduation Int?
-  hourlyRate Float?
-  User       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Skill      Skill[]
-  showcases  PortfolioProject[]
+  id            String              @id
+  userId        String              @unique
+  university    String?
+  course        String?
+  github        String?
+  portfolio     String?
+  linkedin      String?
+  graduation    Int?
+  hourlyRate    Float?
+  slug          String?             @unique
+  available     Boolean             @default(true)
+  videoIntroUrl String?
+  languages     String[]
+  User          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Skill         Skill[]
+  showcases     PortfolioProject[]
+  events        EventParticipation[]
+}
+
+model EventParticipation {
+  id          String           @id @default(cuid())
+  developerId String
+  title       String
+  role        String?
+  eventDate   DateTime?
+  createdAt   DateTime         @default(now())
+  developer   DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
 }
 
 model Verification {
