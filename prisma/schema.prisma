@@ -7,26 +7,27 @@ datasource db {
 }
 
 model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
-  role             Role              @default(DEVELOPER)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  bio              String?
-  image            String?
-  name             String
-  emailVerified    Boolean           @default(false)
-  accounts         Account[]
-  applications     Application[]
-  ClientProfile    ClientProfile?
-  DeveloperProfile DeveloperProfile?
-  Project          Project[]
-  sessions         Session[]
-  posts            Post[]
-  postLikes        PostLike[]
-  comments         Comment[]
-  projectUpdates   ProjectUpdate[]
-  sentMessages     Message[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  role                Role                 @default(DEVELOPER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  bio                 String?
+  image               String?
+  name                String
+  emailVerified       Boolean              @default(false)
+  accounts            Account[]
+  applications        Application[]
+  ClientProfile       ClientProfile?
+  DeveloperProfile    DeveloperProfile?
+  Project             Project[]
+  sessions            Session[]
+  posts               Post[]
+  postLikes           PostLike[]
+  comments            Comment[]
+  projectUpdates      ProjectUpdate[]
+  sentMessages        Message[]
+  practiceSubmissions PracticeSubmission[]
 }
 
 model Session {
@@ -59,25 +60,25 @@ model Account {
 }
 
 model Project {
-  id               String            @id @default(cuid())
-  title            String
-  description      String
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  budget           Float?
-  deadline         DateTime?
-  ownerId          String
-  status           ProjectStatus     @default(OPEN)
-  duration         String?
-  teamSize         Int?
-  experienceLevel  ExperienceLevel?
-  category         String?
-  remote           Boolean           @default(true)
-  skillsRequired   String[]
+  id              String           @id @default(cuid())
+  title           String
+  description     String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  budget          Float?
+  deadline        DateTime?
+  ownerId         String
+  status          ProjectStatus    @default(OPEN)
+  duration        String?
+  teamSize        Int?
+  experienceLevel ExperienceLevel?
+  category        String?
+  remote          Boolean          @default(true)
+  skillsRequired  String[]
 
   applications Application[]
 
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner    User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   updates  ProjectUpdate[]
   messages Message[]
 }
@@ -112,26 +113,26 @@ model ClientProfile {
 }
 
 model DeveloperProfile {
-  id            String                @id
-  userId        String                @unique
-  university    String?
-  course        String?
-  github        String?
-  portfolio     String?
-  linkedin      String?
-  graduation    Int?
-  hourlyRate    Float?
-  slug          String?               @unique
-  available     Boolean               @default(true)
-  videoIntroUrl String?
-  languages     String[]
-  User          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Skill         Skill[]
-  showcases     PortfolioProject[]
-  events        EventParticipation[]
+  id             String               @id
+  userId         String               @unique
+  university     String?
+  course         String?
+  github         String?
+  portfolio      String?
+  linkedin       String?
+  graduation     Int?
+  hourlyRate     Float?
+  slug           String?              @unique
+  available      Boolean              @default(true)
+  videoIntroUrl  String?
+  languages      String[]
+  User           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Skill          Skill[]
+  showcases      PortfolioProject[]
+  events         EventParticipation[]
   certifications Certification[]
-  testimonials  Testimonial[]
-  views         ProfileView[]
+  testimonials   Testimonial[]
+  views          ProfileView[]
 }
 
 model EventParticipation {
@@ -155,15 +156,15 @@ model Certification {
 }
 
 model Testimonial {
-  id            String           @id @default(cuid())
-  developerId   String
-  authorName    String
-  authorRole    String?
-  content       String
-  approved      Boolean          @default(false)
-  requestToken  String           @unique
-  createdAt     DateTime         @default(now())
-  developer     DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  developerId  String
+  authorName   String
+  authorRole   String?
+  content      String
+  approved     Boolean          @default(false)
+  requestToken String           @unique
+  createdAt    DateTime         @default(now())
+  developer    DeveloperProfile @relation(fields: [developerId], references: [id], onDelete: Cascade)
 }
 
 model ProfileView {
@@ -250,6 +251,43 @@ model Comment {
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
+model PracticeProject {
+  id           String               @id @default(cuid())
+  title        String
+  description  String
+  instructions String?
+  category     String?
+  difficulty   String?
+  skills       String[]
+  requirements String[]
+  starterUrl   String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  submissions  PracticeSubmission[]
+
+  @@index([createdAt])
+}
+
+model PracticeSubmission {
+  id            String                   @id @default(cuid())
+  practiceId    String
+  developerId   String
+  solutionUrl   String?
+  repositoryUrl String?
+  notes         String?
+  status        PracticeSubmissionStatus @default(PENDING)
+  feedback      String?
+  score         Int?
+  submittedAt   DateTime                 @default(now())
+  reviewedAt    DateTime?
+  practice      PracticeProject          @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  developer     User                     @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  @@unique([practiceId, developerId])
+  @@index([developerId])
+  @@index([practiceId])
+}
+
 enum Role {
   DEVELOPER
   CLIENT
@@ -273,4 +311,12 @@ enum ExperienceLevel {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+enum PracticeSubmissionStatus {
+  PENDING
+  REVIEWED
+  APPROVED
+  NEEDS_CHANGES
+  REJECTED
 }
